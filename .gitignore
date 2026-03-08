@@ -1,0 +1,21 @@
+# Large model files
+models/shape_predictor_68_face_landmarks.dat
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+mp_sign_env/
+
+# Jupyter
+.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
