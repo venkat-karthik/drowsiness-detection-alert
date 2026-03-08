@@ -12,3 +12,9 @@ def eye_aspect_ratio(eye):
 	C = distance.euclidean(eye[0], eye[3])
 	ear = (A + B) / (2.0 * C)
 	return ear
+
+	
+thresh = 0.25
+frame_check = 20
+detect = dlib.get_frontal_face_detector()
+predict = dlib.shape_predictor("models/shape_predictor_68_face_landmarks.dat")  # Dat file is the crux of the code
