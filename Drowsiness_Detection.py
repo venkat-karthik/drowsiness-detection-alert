@@ -45,3 +45,18 @@ while True:
 		rightEyeHull = cv2.convexHull(rightEye)
 		cv2.drawContours(frame, [leftEyeHull], -1, (0, 255, 0), 1)
 		cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
+
+
+		if ear < thresh:
+			flag += 1
+			print(flag)
+			if flag >= frame_check:
+				cv2.putText(frame, "****************ALERT!****************", (10, 30),
+					cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+				cv2.putText(frame, "****************ALERT!****************", (10, 325),
+					cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+				
+				# ✅ Beep alert when drowsiness detected
+				winsound.Beep(1000, 800)  # (frequency in Hz, duration in ms)
+		else:
+			flag = 0
