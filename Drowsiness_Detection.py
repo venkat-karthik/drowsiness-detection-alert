@@ -33,3 +33,11 @@ while True:
 	frame = imutils.resize(frame, width=450)
 	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 	subjects = detect(gray, 0)
+	for subject in subjects:
+		shape = predict(gray, subject)
+		shape = face_utils.shape_to_np(shape)  # converting to NumPy Array
+		leftEye = shape[lStart:lEnd]
+		rightEye = shape[rStart:rEnd]
+		leftEAR = eye_aspect_ratio(leftEye)
+		rightEAR = eye_aspect_ratio(rightEye)
+		ear = (leftEAR + rightEAR) / 2.0
