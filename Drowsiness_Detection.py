@@ -60,3 +60,12 @@ while True:
 				winsound.Beep(1000, 800)  # (frequency in Hz, duration in ms)
 		else:
 			flag = 0
+
+
+	cv2.imshow("Frame", frame)
+	key = cv2.waitKey(1) & 0xFF
+	if key == ord("q"):
+		break
+
+cv2.destroyAllWindows()
+cap.release()
