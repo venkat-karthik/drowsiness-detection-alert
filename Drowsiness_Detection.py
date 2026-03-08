@@ -26,3 +26,10 @@ predict = dlib.shape_predictor("models/shape_predictor_68_face_landmarks.dat")  
 
 cap = cv2.VideoCapture(0)
 flag = 0
+
+
+while True:
+	ret, frame = cap.read()
+	frame = imutils.resize(frame, width=450)
+	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+	subjects = detect(gray, 0)
