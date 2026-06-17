@@ -1,4 +1,6 @@
-import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/vision_bundle.mjs";
+// FaceLandmarker and FilesetResolver will be loaded dynamically
+let FaceLandmarker = null;
+let FilesetResolver = null;
 
 // DOM Elements
 const video = document.getElementById("webcam");
@@ -88,6 +90,11 @@ const LEFT_EYE = {
 // Initialize Application
 async function init() {
   try {
+    loadingSubtext.innerText = "Connecting to MediaPipe CDN...";
+    const module = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/vision_bundle.mjs");
+    FaceLandmarker = module.FaceLandmarker;
+    FilesetResolver = module.FilesetResolver;
+
     loadingSubtext.innerText = "Loading MediaPipe WebAssembly modules...";
     const vision = await FilesetResolver.forVisionTasks(
       "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/wasm"
@@ -124,7 +131,7 @@ async function init() {
     drawChart();
   } catch (error) {
     console.error("Initialization error:", error);
-    loadingSubtext.innerHTML = `<span style="color: var(--color-danger)">Error loading assets. Please refresh or check connection.</span>`;
+    loadingSubtext.innerHTML = `<span style="color: var(--color-danger)">Error loading assets: ${error.message || error}. Please refresh or check browser console.</span>`;
   }
 }
 
