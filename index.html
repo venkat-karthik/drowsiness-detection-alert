@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SomnoShield AI | Real-Time Drowsiness Detection Dashboard</title>
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="An advanced client-side AI system that monitors eyes and generates immediate alerts upon detecting driver drowsiness using computer vision.">
+  <meta name="keywords" content="drowsiness detection, computer vision, eye aspect ratio, mediapipe, real-time alert, vercel, driver safety">
+  <meta name="author" content="Antigravity">
+</head>
+<body>
+
+  <!-- Fullscreen Flashing Emergency Overlay -->
+  <div id="emergency-overlay" class="emergency-overlay"></div>
+
+  <div class="dashboard-container">
+    <!-- Header Section -->
+    <header>
+      <div class="brand-section">
+        <div class="brand-logo">😴</div>
+        <div class="brand-title-group">
+          <h1>SomnoShield AI</h1>
+          <p>Real-Time Computer Vision Driver Drowsiness Guard</p>
+        </div>
+      </div>
+      <div class="status-pill">
+        <div class="pulse-dot"></div>
+        <span>Local Client Service</span>
+      </div>
+    </header>
+
+    <!-- Dashboard Main Grid -->
+    <main class="dashboard-grid">
+      
+      <!-- Left Column: Live camera feed and overlays -->
+      <section class="feed-column">
+        <div class="card camera-card">
+          <div class="card-title">
+            <i class="fas fa-camera"></i> Live Monitoring Feed
+          </div>
+          
+          <!-- Webcam Video and Overlay Canvas Container -->
+          <div class="video-container">
+            <video id="webcam" autoplay playsinline muted></video>
+            <canvas id="overlay"></canvas>
+            
+            <!-- Loading Indicator for WASM Model -->
+            <div id="loading-overlay" class="loading-overlay">
+              <div class="spinner"></div>
+              <p class="loading-text">Initializing AI Engine</p>
+              <p id="loading-subtext" class="loading-subtext">Resolving MediaPipe tasks-vision components...</p>
+            </div>
+          </div>
+          
+          <!-- Start/Stop Controls -->
+          <div class="camera-controls">
+            <button id="btn-toggle-camera" class="btn btn-primary" disabled>
+              <i class="fas fa-video"></i> Start Monitoring
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Stats, Chart, and Calibrations -->
+      <section class="control-column">
+        
+        <!-- Status Panel Card -->
+        <div id="status-card" class="card status-display-card">
+          <div class="status-indicator">
+            <p class="status-label">System State</p>
+            <p id="status-val" class="status-value">OFFLINE</p>
+          </div>
+          
+          <!-- Large Emergency Drowsy Warning Banner -->
+          <div id="banner-alert" class="drowsy-alert-banner">
+            <i class="fas fa-exclamation-triangle"></i> ALERT! DROWSINESS DETECTED! <i class="fas fa-exclamation-triangle"></i>
+          </div>
+
+          <div class="metrics-row">
+            <!-- Circular EAR Meter -->
+            <div class="metric-gauge-wrapper">
+              <svg class="gauge-svg">
+                <circle class="gauge-bg" cx="45" cy="45" r="40"></circle>
+                <circle id="ear-bar" class="gauge-bar" cx="45" cy="45" r="40"></circle>
+              </svg>
+              <div id="ear-text" class="gauge-val-text">0.000</div>
+              <div class="gauge-label">Eye Aspect Ratio</div>
+            </div>
+          </div>
+
+          <!-- Real-Time Dynamic EAR History Chart -->
+          <div class="chart-container">
+            <canvas id="ear-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Session Statistics Card -->
+        <div class="card">
+          <div class="card-title">
+            <i class="fas fa-chart-bar"></i> Session Analytics
+          </div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <p id="stat-duration" class="stat-number">00:00</p>
+              <p class="stat-desc">Duration</p>
+            </div>
+            <div class="stat-item">
+              <p id="stat-blinks" class="stat-number">0</p>
+              <p class="stat-desc">Blinks</p>
+            </div>
+            <div class="stat-item">
+              <p id="stat-alerts" class="stat-number">0</p>
+              <p class="stat-desc">Alerts</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calibration & Configuration Settings -->
+        <div class="card">
+          <div class="card-title">
+            <i class="fas fa-sliders-h"></i> Configuration Panel
+          </div>
+          <div class="config-group">
+            
+            <!-- EAR Threshold Slider -->
+            <div class="input-slider-group">
+              <div class="slider-label-row">
+                <span class="slider-title">EAR Alert Threshold</span>
+                <span id="threshold-ear-val" class="slider-value">0.25</span>
+              </div>
+              <input type="range" id="threshold-ear" min="0.15" max="0.35" step="0.01" value="0.25">
+            </div>
+
+            <!-- Frame Check Slider -->
+            <div class="input-slider-group">
+              <div class="slider-label-row">
+                <span class="slider-title">Drowsy Frame Delay</span>
+                <span id="threshold-frames-val" class="slider-value">20</span>
+              </div>
+              <input type="range" id="threshold-frames" min="10" max="60" step="1" value="20">
+            </div>
+
+            <!-- Alarm Volume Slider -->
+            <div class="input-slider-group">
+              <div class="slider-label-row">
+                <span class="slider-title">Siren Volume</span>
+                <span id="volume-val" class="slider-value">80%</span>
+              </div>
+              <input type="range" id="volume" min="0" max="100" step="5" value="80">
+            </div>
+
+            <!-- Alarm Audio Tone Selector -->
+            <div class="input-slider-group">
+              <span class="slider-title" style="font-size: 0.85rem; font-weight: 500;">Alarm Tone</span>
+              <div class="audio-select-grid">
+                <button class="btn-radio active" data-sound="beep">Pulse Beep</button>
+                <button class="btn-radio" data-sound="siren">Wail Siren</button>
+                <button class="btn-radio" data-sound="digital">Sci-Fi Alert</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <!-- Footer licensing and credits -->
+    <footer>
+      <p>SomnoShield AI | Powered by MediaPipe Vision & Web Audio API</p>
+      <p style="margin-top: 0.25rem; opacity: 0.6;">
+        Original algorithms by <a href="https://www.pyimagesearch.com/2017/05/08/drowsiness-detection-opencv/" target="_blank" rel="noopener">Adrian Rosebrock</a> 
+        and <a href="https://github.com/akshaybahadur21/Drowsiness_Detection" target="_blank" rel="noopener">Akshay Bahadur</a>
+      </p>
+    </footer>
+  </div>
+
+  <!-- Main JS Logic (Module import to support ES modules) -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
