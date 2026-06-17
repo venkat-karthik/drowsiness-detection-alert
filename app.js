@@ -1,4 +1,4 @@
-import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/bundle_mjs.mjs";
+import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/vision_bundle.mjs";
 
 // DOM Elements
 const video = document.getElementById("webcam");
