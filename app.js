@@ -72,9 +72,9 @@ const RIGHT_EYE = {
   innerCorner: 133,
   upperLid1: 159,
   upperLid2: 158,
-  lowerLid1: 144,
+  lowerLid1: 145,
   lowerLid2: 153,
-  all: [33, 159, 158, 133, 153, 144]
+  all: [33, 159, 158, 133, 153, 145]
 };
 
 const LEFT_EYE = {
