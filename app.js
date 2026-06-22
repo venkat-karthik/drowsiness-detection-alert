@@ -341,6 +341,11 @@ function stopMonitoring() {
   stopAlarmSound();
   clearAlertState();
   
+  // Reset container aspect ratio
+  if (video.parentElement) {
+    video.parentElement.style.aspectRatio = "";
+  }
+  
   // reset metrics
   statusValue.innerText = "OFFLINE";
   statusValue.className = "status-value";
@@ -349,6 +354,11 @@ function stopMonitoring() {
 
 function onVideoPlay() {
   if (!isMonitoring) return;
+  
+  // Set video container aspect ratio to match the camera stream's native dimensions
+  if (video.videoWidth && video.videoHeight && video.parentElement) {
+    video.parentElement.style.aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
+  }
   
   resizeCanvas();
   
@@ -431,9 +441,11 @@ function drawEyeContour(eyePoints, landmarks, color) {
 
 // Main processing logic
 function processLandmarks(landmarks) {
-  // Compute EAR for left & right eyes
-  const earL = computeEAR(LEFT_EYE, landmarks, canvas.width, canvas.height);
-  const earR = computeEAR(RIGHT_EYE, landmarks, canvas.width, canvas.height);
+  // Compute EAR for left & right eyes using the video's actual resolution
+  const vWidth = video.videoWidth || 640;
+  const vHeight = video.videoHeight || 480;
+  const earL = computeEAR(LEFT_EYE, landmarks, vWidth, vHeight);
+  const earR = computeEAR(RIGHT_EYE, landmarks, vWidth, vHeight);
   const earAvg = (earL + earR) / 2.0;
   
   // Keep history
