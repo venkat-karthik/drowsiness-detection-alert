@@ -87,6 +87,26 @@ const LEFT_EYE = {
   all: [362, 386, 385, 263, 380, 374]
 };
 
+// Helper to resolve CSS custom property colors for HTML5 Canvas use
+function getCSSColor(varName, opacity = 1.0) {
+  const style = getComputedStyle(document.documentElement);
+  let colorVal = style.getPropertyValue(varName).trim();
+  
+  if (!colorVal) {
+    if (varName === '--color-primary') colorVal = 'hsl(195, 100%, 50%)';
+    else if (varName === '--color-secondary') colorVal = 'hsl(270, 100%, 65%)';
+    else if (varName === '--color-success') colorVal = 'hsl(145, 85%, 45%)';
+    else if (varName === '--color-warning') colorVal = 'hsl(38, 95%, 55%)';
+    else if (varName === '--color-danger') colorVal = 'hsl(345, 95%, 50%)';
+    else colorVal = 'hsl(0, 0%, 100%)';
+  }
+  
+  if (opacity !== 1.0 && colorVal.startsWith('hsl(')) {
+    return colorVal.replace('hsl(', 'hsla(').replace(')', `, ${opacity})`);
+  }
+  return colorVal;
+}
+
 // Initialize Application
 async function init() {
   try {
@@ -424,7 +444,13 @@ function computeEAR(eyePoints, landmarks, width, height) {
 function drawEyeContour(eyePoints, landmarks, color) {
   ctx.strokeStyle = color;
   ctx.lineWidth = 2;
-  ctx.fillStyle = color + "22"; // 10% opacity
+  
+  // Apply opacity to HSL color string for fill
+  let fillColor = color;
+  if (color.startsWith('hsl(')) {
+    fillColor = color.replace('hsl(', 'hsla(').replace(')', ', 0.13)');
+  }
+  ctx.fillStyle = fillColor;
   
   ctx.beginPath();
   const startPt = landmarks[eyePoints.all[0]];
@@ -460,9 +486,9 @@ function processLandmarks(landmarks) {
   earBar.style.strokeDashoffset = 251.2 - (251.2 * earPercentage) / 100;
   
   // Set stroke color based on EAR level
-  let eyeColor = "var(--color-success)"; // green
+  let eyeColor = getCSSColor('--color-success'); // green
   if (earAvg < earThreshold) {
-    eyeColor = "var(--color-warning)"; // amber when closed
+    eyeColor = getCSSColor('--color-warning'); // amber when closed
   }
   
   // Check for Alert condition
@@ -478,7 +504,7 @@ function processLandmarks(landmarks) {
     
     if (flag >= frameCheck) {
       triggerAlert();
-      eyeColor = "var(--color-danger)"; // flashing red
+      eyeColor = getCSSColor('--color-danger'); // flashing red
     }
   } else {
     // Reset consecutive closed frames
@@ -624,10 +650,10 @@ function drawChart() {
     
     // Create glowing gradient
     const gradient = chartCtx.createLinearGradient(0, 0, 0, h);
-    gradient.addColorStop(0, "var(--color-primary)");
-    gradient.addColorStop(1, "var(--color-secondary)");
+    gradient.addColorStop(0, getCSSColor('--color-primary'));
+    gradient.addColorStop(1, getCSSColor('--color-secondary'));
     
-    chartCtx.strokeStyle = isAlertActive ? "var(--color-danger)" : gradient;
+    chartCtx.strokeStyle = isAlertActive ? getCSSColor('--color-danger') : gradient;
     chartCtx.lineWidth = 2.5;
     chartCtx.beginPath();
     
